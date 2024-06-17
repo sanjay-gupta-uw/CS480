@@ -1,3 +1,4 @@
+import argparse
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -5,7 +6,7 @@ import torch.optim as optim
 import torchvision
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import time
 import random
 
@@ -14,15 +15,15 @@ transform = transforms.Compose(
     [
         transforms.Resize((32, 32)),
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,)),   
+        transforms.Normalize((0.1307,), (0.3081,)),
     ]
 )
-#Test transform
+# Test transform
 test_transform_h = transforms.Compose(
     [
         transforms.Resize((32, 32)),
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,)),   
+        transforms.Normalize((0.1307,), (0.3081,)),
         transforms.RandomHorizontalFlip(p=1),
     ]
 )
@@ -102,28 +103,37 @@ testloader_v = torch.utils.data.DataLoader(testset_v, batch_size=256, shuffle=Fa
 testset_guassian_0dot01 = torchvision.datasets.MNIST(
     root="./data", train=False, download=True, transform=test_transform_guassian_0dot01
 )
-testloader_guassian_0dot01 = torch.utils.data.DataLoader(testset_guassian_0dot01, batch_size=256, shuffle=False)
+testloader_guassian_0dot01 = torch.utils.data.DataLoader(
+    testset_guassian_0dot01, batch_size=256, shuffle=False
+)
 
 testset_guassian_0dot1 = torchvision.datasets.MNIST(
     root="./data", train=False, download=True, transform=test_transform_guassian_0dot1
 )
-testloader_guassian_0dot1 = torch.utils.data.DataLoader(testset_guassian_0dot1, batch_size=256, shuffle=False)
+testloader_guassian_0dot1 = torch.utils.data.DataLoader(
+    testset_guassian_0dot1, batch_size=256, shuffle=False
+)
 
 testset_guassian_1 = torchvision.datasets.MNIST(
     root="./data", train=False, download=True, transform=test_transform_guassian_1
 )
-testloader_guassian_1 = torch.utils.data.DataLoader(testset_guassian_1, batch_size=256, shuffle=False)
+testloader_guassian_1 = torch.utils.data.DataLoader(
+    testset_guassian_1, batch_size=256, shuffle=False
+)
 ######################################################################################
 train_augmented = torchvision.datasets.MNIST(
     root="./data", train=True, download=True, transform=augmentation_transform
 )
-trainloader_augmented = torch.utils.data.DataLoader(train_augmented, batch_size=256, shuffle=True)
+trainloader_augmented = torch.utils.data.DataLoader(
+    train_augmented, batch_size=256, shuffle=True
+)
 
 test_augmented = torchvision.datasets.MNIST(
     root="./data", train=False, download=True, transform=augmentation_transform
 )
-testloader_augmented = torch.utils.data.DataLoader(test_augmented, batch_size=256, shuffle=False)
-
+testloader_augmented = torch.utils.data.DataLoader(
+    test_augmented, batch_size=256, shuffle=False
+)
 
 
 print("Length of trainsset: ", len(trainset))
@@ -132,6 +142,7 @@ print("Length of testset: ", len(testset))
 NUM_EPOCHS = 5
 EPOCHS = range(NUM_EPOCHS)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 class VGG11(nn.Module):
     def __init__(self):
@@ -185,10 +196,11 @@ class VGG11(nn.Module):
 
         return output
 
+
 def train(net, loader, plot_data=False):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(net.parameters(), lr=0.001)
-    
+
     train_accuracy = []
     train_loss = []
 
@@ -216,7 +228,7 @@ def train(net, loader, plot_data=False):
 
             if i % 100 == 0:
                 print(f"Epoch: {epoch}, Batch: {i}, Loss: {loss.item()}")
-        if (plot_data):
+        if plot_data:
             print(f"Training Accuracy for epoch {epoch}: {correct / total}")
             train_accuracy.append(correct / total)
             print(f"Loss for epoch {epoch}: {running_loss / trainloader.__len__()}")
@@ -225,134 +237,158 @@ def train(net, loader, plot_data=False):
             t_acc, t_loss = test(net, loader, track_loss=True)
             test_accuracy.append(t_acc)
             test_loss.append(t_loss)
-    if (plot_data):
+    if plot_data:
         # plot test accuracy vs epoch
-        plt.plot(EPOCHS, test_accuracy, label='Test Accuracy')
-        plt.xlabel('Epoch')
-        plt.ylabel('Accuracy')
-        plt.title('Test Accuracy vs Epoch')
+        plt.plot(EPOCHS, test_accuracy, label="Test Accuracy")
+        plt.xlabel("Epoch")
+        plt.ylabel("Accuracy")
+        plt.title("Test Accuracy vs Epoch")
         plt.legend()
-        plt.savefig('test_accuracy_b.png')
+        plt.savefig("test_accuracy_b.png")
         plt.clf()
         plt.close()
 
         # plot training accuracy vs epoch
-        plt.plot(EPOCHS, train_accuracy, label='Training Accuracy')
-        plt.xlabel('Epoch')
-        plt.ylabel('Accuracy')
-        plt.title('Training Accuracy vs Epoch')
+        plt.plot(EPOCHS, train_accuracy, label="Training Accuracy")
+        plt.xlabel("Epoch")
+        plt.ylabel("Accuracy")
+        plt.title("Training Accuracy vs Epoch")
         plt.legend()
-        plt.savefig('train_accuracy_b.png')        
+        plt.savefig("train_accuracy_b.png")
         plt.clf()
         plt.close()
 
-
         # plot test loss vs epoch
-        plt.plot(EPOCHS, test_loss, label='Test Loss')
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.title('Test Loss vs Epoch')
+        plt.plot(EPOCHS, test_loss, label="Test Loss")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.title("Test Loss vs Epoch")
         plt.legend()
-        plt.savefig('test_loss_b.png')
+        plt.savefig("test_loss_b.png")
         plt.clf()
         plt.close()
 
         # plot training loss vs epoch
-        plt.plot(EPOCHS, train_loss, label='Training Loss')
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.title('Training Loss vs Epoch')
+        plt.plot(EPOCHS, train_loss, label="Training Loss")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.title("Training Loss vs Epoch")
         plt.legend()
-        plt.savefig('train_loss_b.png')
+        plt.savefig("train_loss_b.png")
         plt.clf()
         plt.close()
 
-def test(net, loader, track_loss=False):
-        criterion = nn.CrossEntropyLoss()
-        correct = 0
-        total = 0
-        running_loss = 0
-        with torch.no_grad():
-            for data in loader:
-                input, labels = data
-                input, labels = input.to(device), labels.to(device)
-                output = net(input)
-                # training loss
-                loss = criterion(output, labels)
-                running_loss += loss.item()
-                _, pred = torch.max(output, 1)
-                total += labels.size(0)
-                correct += (pred == labels).sum().item()
-        #print(f"Test Accuracy: {correct / total}")
-        #print(f"Test Loss: {running_loss / loader.__len__()}")
-        if (track_loss):
-            return correct / total, running_loss / loader.__len__()
-        return correct / total
 
-def compileAnswers():
-    # Produces the answers for the B)
+def test(net, loader, track_loss=False):
+    criterion = nn.CrossEntropyLoss()
+    correct = 0
+    total = 0
+    running_loss = 0
+    with torch.no_grad():
+        for data in loader:
+            input, labels = data
+            input, labels = input.to(device), labels.to(device)
+            output = net(input)
+            # training loss
+            loss = criterion(output, labels)
+            running_loss += loss.item()
+            _, pred = torch.max(output, 1)
+            total += labels.size(0)
+            correct += (pred == labels).sum().item()
+    # print(f"Test Accuracy: {correct / total}")
+    # print(f"Test Loss: {running_loss / loader.__len__()}")
+    if track_loss:
+        return correct / total, running_loss / loader.__len__()
+    return correct / total
+
+
+def train_netBC(B=False):
     net = VGG11().to(device)
-    train(net, trainloader, plot_data=True)
+    train(net, trainloader, plot_data=B)
+    if not B:
+        return net
+
+
+def B():
+    train_netBC(True)
+    print("Successfully executed B")
+
+
+def C():
+    net = train_netBC(False)
     # Produces the answers for the C)
     h_acc = test(net, testloader_h)
     v_acc = test(net, testloader_v)
     # plot accuracy vs flip type
-    plt.bar(['Horizontal', 'Vertical'], [h_acc, v_acc])
-    plt.xlabel('Flip Type')
-    plt.ylabel('Accuracy')
-    plt.title('Accuracy vs Flip Type')
+    plt.bar(["Horizontal", "Vertical"], [h_acc, v_acc])
+    plt.xlabel("Flip Type")
+    plt.ylabel("Accuracy")
+    plt.title("Accuracy vs Flip Type")
     plt.legend()
-    plt.savefig('flip_type_c.png')
+    plt.savefig("flip_type_c.png")
     plt.clf()
     plt.close()
-
 
     # Gaussian noise
     g001_acc = test(net, testloader_guassian_0dot01)
     g01_acc = test(net, testloader_guassian_0dot1)
     g1_acc = test(net, testloader_guassian_1)
     # plot accuracy vs noise variance
-    plt.bar(['0.01', '0.1', '1'], [g001_acc, g01_acc, g1_acc])
-    plt.xlabel('Noise Variance')
-    plt.ylabel('Accuracy')
-    plt.title('Accuracy vs Noise Variance')
+    plt.bar(["0.01", "0.1", "1"], [g001_acc, g01_acc, g1_acc])
+    plt.xlabel("Noise Variance")
+    plt.ylabel("Accuracy")
+    plt.title("Accuracy vs Noise Variance")
     plt.legend()
-    plt.savefig('noise_variance_c.png')
+    plt.savefig("noise_variance_c.png")
     plt.clf()
     plt.close()
 
 
+def D():
     # Augmented data
     aug_net = VGG11().to(device)
     train(aug_net, trainloader_augmented)
     h_acc_aug = test(aug_net, testloader_v)
     v_acc_aug = test(aug_net, testloader_h)
     # plot accuracy vs flip type
-    plt.bar(['Horizontal', 'Vertical'], [h_acc_aug, v_acc_aug])
-    plt.xlabel('Flip Type')
-    plt.ylabel('Accuracy')
-    plt.title('Accuracy vs Flip Type')
+    plt.bar(["Horizontal", "Vertical"], [h_acc_aug, v_acc_aug])
+    plt.xlabel("Flip Type")
+    plt.ylabel("Accuracy")
+    plt.title("Accuracy vs Flip Type")
     plt.legend()
-    plt.savefig('flip_type_augmented.png')        
+    plt.savefig("flip_type_augmented.png")
     plt.clf()
     plt.close()
-
 
     g001_acc_aug = test(aug_net, testloader_guassian_0dot01)
     g01_acc_aug = test(aug_net, testloader_guassian_0dot1)
     g1_acc_aug = test(aug_net, testloader_guassian_1)
     # plot accuracy vs noise variance
-    plt.bar(['0.01', '0.1', '1'], [g001_acc_aug, g01_acc_aug, g1_acc_aug])
-    plt.xlabel('Noise Variance')
-    plt.ylabel('Accuracy')
-    plt.title('Accuracy vs Noise Variance')
+    plt.bar(["0.01", "0.1", "1"], [g001_acc_aug, g01_acc_aug, g1_acc_aug])
+    plt.xlabel("Noise Variance")
+    plt.ylabel("Accuracy")
+    plt.title("Accuracy vs Noise Variance")
     plt.legend()
-    plt.savefig('noise_variance_augmented.png')
+    plt.savefig("noise_variance_augmented.png")
     plt.clf()
     plt.close()
 
 
-start = time.time()
-compileAnswers()
-end = time.time()
-print("Time taken: ", end - start)
+def __main__(script):
+    print(f"Running  script for question 1.{script}")
+    if script == 1:
+        B()
+    elif script == 2:
+        C()
+    elif script == 3:
+        D()
+    else:
+        print("Invalid script number")
+    print("Done!")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="NN for Digit Classification")
+    parser.add_argument("script", type=int, help="which answer to run")
+    args = parser.parse_args()
+    __main__(args.script)
