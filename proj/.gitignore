@@ -1,0 +1,6 @@
+# ignore myvenv
+myvenv/
+boost_models/
+data/
+main_old.ipynb
+*.npy
